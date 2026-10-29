@@ -1,0 +1,16 @@
+{
+    "name": "asin/tma-rdv",
+    "require-dev": {
+        "phpunit/phpunit": "^13.4"
+    },
+    "autoload": {
+        "psr-4": {
+            "Rdv\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Rdv\\Tests\\": "tests/"
+        }
+    }
+}
