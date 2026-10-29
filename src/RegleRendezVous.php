@@ -114,4 +114,22 @@ final class RegleRendezVous
         return Resultat::ok();
     }
 
+    public function listerRendezVous(array $rdvUsager, int $page, int $parPage = 10): array
+    {
+        // Règle 6 (TMA-106) : du plus récent au plus ancien, donc le prochain RDV en tête
+        usort($rdvUsager, fn(array $a, array $b) => $b['dateHeure'] <=> $a['dateHeure']);
+
+        // Une page inférieure à 1 est ramenée à la première page
+        $page = max(1, $page);
+        $parPage = max(1, $parPage);
+
+        return [
+            'page' => $page,
+            'parPage' => $parPage,
+            'total' => count($rdvUsager),
+            'rendezVous' => array_slice($rdvUsager, ($page - 1) * $parPage, $parPage),
+        ];
+    }
+
+
 }
