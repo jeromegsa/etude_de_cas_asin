@@ -98,4 +98,20 @@ final class RegleRendezVous
         return Resultat::ok();
     }
 
+
+    public function changementStatut(array $rdv, string $nouveauStatut): Resultat
+    {
+        // Règle 5 : un agent ne peut passer un RDV qu'à « honore » ou « absent » (400 sinon)
+        if (!in_array($nouveauStatut, ['honore', 'absent'], true)) {
+            return Resultat::refus(400, Messages::STATUT_INVALIDE);
+        }
+
+        // Règle 5 (TMA-105) : honore, absent et annule sont définitifs, seul « confirme » peut évoluer
+        if ($rdv['statut'] !== 'confirme') {
+            return Resultat::refus(409, Messages::DEJA_CLOTURE);
+        }
+
+        return Resultat::ok();
+    }
+
 }
