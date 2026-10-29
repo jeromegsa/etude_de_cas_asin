@@ -27,6 +27,54 @@ Résultat attendu : `OK (25 tests, 45 assertions)`.
 
 Chaque méthode reçoit l'heure courante en paramètre (`DateTimeImmutable $maintenant`), jamais l'heure système, pour que les tests soient déterministes. Toutes les heures sont celles du Bénin (GMT+1).
 
+## Vérifier chaque correction
+
+Chaque ticket a un test qui rejoue le cas décrit et échouerait avec le comportement signalé. Pour lancer un seul ticket :
+
+```
+php vendor/phpunit/phpunit/phpunit --filter <nom du test>
+```
+
+| Ticket | Verdict | Commande (après `--filter`) |
+|---|---|---|
+| TMA-101 | anomalie | `testSamediRefuse` |
+| TMA-102 | anomalie | `testCreneauPleinRefuse` |
+| TMA-103 | anomalie | `testNpiAvecLettreRefuse` |
+| TMA-104 | anomalie | `testAnnulationA40hAcceptee` |
+| TMA-105 | anomalie | `testRdvAnnuleNePeutPasDevenirHonore` |
+| TMA-106 | anomalie | `testProchainRdvEnTeteDePremierePage` |
+| TMA-107 | **conforme** | `testDejaUnRdvAVenirRefuse` |
+
+Pour afficher tous les cas sous forme lisible : `php vendor/phpunit/phpunit/phpunit --testdox`.
+
+## Rejouer les tickets et essayer ses propres données
+
+`demo.php` rejoue les 7 tickets avec les données des traces et affiche la réponse du module corrigé :
+
+```
+php demo.php
+```
+
+Résultat attendu :
+
+```
+TMA-101 : 409 Le centre est fermé le week-end.
+TMA-102 : 409 Ce créneau est complet.
+TMA-103 : 400 Le NPI doit comporter exactement 10 chiffres.
+TMA-104 : accepté
+TMA-105 : 409 Ce rendez-vous est déjà clôturé.
+TMA-106 : total 13, page 1 de 10 rdv, premier = 02/12/2026 08:30
+TMA-107 : 409 Vous avez déjà un rendez-vous à venir.
+```
+
+Pour tester d'autres données, copier un bloc de `demo.php` et changer les valeurs. Le module s'appelle depuis du code PHP :
+- `priseRendezVous($npi, $service, 'AAAA-MM-JJTHH:MM', $rdvExistants, $maintenant)`
+- `annulation($rdv, $maintenant)`
+- `changementStatut($rdv, 'honore')` (ou `'absent'`)
+- `listerRendezVous($rdvsUsager, $page)`
+
+Chaque rendez-vous est un tableau `['npi' => ..., 'statut' => ..., 'dateHeure' => DateTimeImmutable]`, et chaque contrôle renvoie un `Resultat` (`estOk()`, `code()`, `message()`).
+
 ## Qualification et diagnostic des tickets
 
 Verdict : 6 anomalies (TMA-101 à 106) et 1 comportement conforme (TMA-107).
